@@ -1,5 +1,7 @@
 import cors from "cors";
-import express, { Application, NextFunction, Request, Response } from "express";
+import express, { Application, Request, Response } from "express";
+import notFound from "./app/errorHelpers/notFound";
+import { globalErrorHandler } from "./app/middleware/globalErrorHandler";
 
 const app: Application = express();
 
@@ -12,18 +14,16 @@ const test = async (req: Request, res: Response) => {
   res.status(200).json({
     success: true,
     message: "Welcome To The Portfolio Server",
-    note: "Great things takes time",
+    note: "Winter Is Coming",
   });
 };
 
 app.get("/", test);
 
-// route error handler
-app.use((req: Request, res: Response, next: NextFunction) => {
-  res.status(404).json({
-    success: false,
-    message: "Route not found",
-  });
-});
+// Global error handler
+app.use(globalErrorHandler);
+
+// not found route handler
+app.use(notFound);
 
 export default app;
