@@ -5,6 +5,13 @@ import { BlogValidations } from "./blog.validation";
 
 const router = Router();
 
+// Get all blog posts
+router.get("/", BlogController.getAllBlogs);
+
+// Get single blog post by slug
+router.get("/:slug", BlogController.getBlogBySlug);
+
+
 // Create blog post
 router.post(
   "/",

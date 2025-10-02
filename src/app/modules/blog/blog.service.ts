@@ -1,24 +1,14 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "../../config/db";
-
-// Helper function to generate slug from title
-const generateSlug = (title: string): string => {
-  return title
-    .toLowerCase()
-    .trim()
-    .replace(/[^\w\s-]/g, "")
-    .replace(/[\s_-]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-};
+import { generateSlug } from "../../utils/generateSlug";
 
 // Create a blog post
 const createBlog = async (blogData: Prisma.BlogPostCreateInput) => {
-  // Generate slug if not provided
+  // Generate slug
   if (!blogData.slug) {
     blogData.slug = generateSlug(blogData.title);
   }
 
-  // Ensure slug is unique by appending timestamp if needed
   const existingBlog = await prisma.blogPost.findUnique({
     where: { slug: blogData.slug },
   });
@@ -32,9 +22,7 @@ const createBlog = async (blogData: Prisma.BlogPostCreateInput) => {
     include: {
       author: {
         select: {
-          id: true,
           username: true,
-          name: true,
           email: true,
         },
       },
@@ -43,6 +31,55 @@ const createBlog = async (blogData: Prisma.BlogPostCreateInput) => {
   return result;
 };
 
+// Get all blog posts
+const getAllBlogs = async () => {
+  const blogs = await prisma.blogPost.findMany({
+    orderBy: {
+      createdAt: "desc",
+    },
+    include: {
+      author: {
+        select: {
+          id: true,
+          username: true,
+          email: true,
+        },
+      },
+    },
+  });
+
+  return blogs;
+};
+
+// Get single blog post by slug
+const getBlogBySlug = async (slug: string) => {
+  const blog = await prisma.blogPost.findUnique({
+    where: { slug: slug },
+    include: {
+      author: {
+        select: {
+          username: true,
+          email: true,
+        },
+      },
+    },
+  });
+
+  if (!blog) {
+    throw new Error("Blog post not found");
+  }
+
+  // increase views count
+  await prisma.blogPost.update({
+    where: { slug: slug },
+    data: { views: { increment: 1 } },
+  });
+
+  return blog;
+};
+
 export const blogServices = {
   createBlog,
+  getAllBlogs,
+  getBlogBySlug,
 };

@@ -19,6 +19,37 @@ const createBlog = catchAsync(
   }
 );
 
+// Get all blog posts
+const getAllBlogs = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const blogs = await blogServices.getAllBlogs();
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "All Blogs retrieved successfully",
+      data: blogs,
+    });
+  }
+);
+
+// Get single blog post by slug
+const getBlogBySlug = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { slug } = req.params;
+    const blog = await blogServices.getBlogBySlug(slug);
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Blog retrieved successfully",
+      data: blog,
+    });
+  }
+);
+
 export const BlogController = {
   createBlog,
+  getAllBlogs,
+  getBlogBySlug,
 };
