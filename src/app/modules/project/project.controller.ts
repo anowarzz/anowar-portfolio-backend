@@ -33,9 +33,59 @@ const getAllProjects = catchAsync(
   }
 );
 
+// get single Project
+const getSingleProject = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { id } = req.params;
+    const project = await projectServices.getSingleProject(Number(id));
 
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Project retrieved Successfully",
+      data: project,
+    });
+  }
+);
+
+// update Project
+const updateProject = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { id } = req.params;
+    const projectData = req.body;
+    const project = await projectServices.updateProject(
+      Number(id),
+      projectData
+    );
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Project updated Successfully",
+      data: project,
+    });
+  }
+);
+
+// delete Project
+const deleteProject = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { id } = req.params;
+    const project = await projectServices.deleteProject(Number(id));
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Project deleted Successfully",
+      data: project,
+    });
+  }
+);
 
 export const ProjectController = {
   addProject,
   getAllProjects,
+  getSingleProject,
+  updateProject,
+  deleteProject,
 };
