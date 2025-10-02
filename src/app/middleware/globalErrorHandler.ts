@@ -4,6 +4,7 @@ import { NextFunction, Request, Response } from "express";
 import { envVars } from "../config/env";
 
 import AppError from "../errorHelpers/appError";
+import { handleDuplicateError } from "../errorHelpers/handleDuplicateError";
 import { handleZodError } from "../errorHelpers/handleZodError";
 import { TErrorSources } from "../interfaces/error.types";
 
@@ -28,7 +29,13 @@ export const globalErrorHandler = (
     message = simplifiedError.message;
     errorSources = simplifiedError.errorSources as TErrorSources[];
   }
-
+  // Prisma duplicate error
+  else if (err.code === "P2002") {
+    const simplifiedError = handleDuplicateError(err);
+    statusCode = simplifiedError.statusCode;
+    message = simplifiedError.message;
+    errorSources = simplifiedError.errorSources as TErrorSources[];
+  }
   // custom error
   else if (err instanceof AppError) {
     statusCode = err.statusCode;
