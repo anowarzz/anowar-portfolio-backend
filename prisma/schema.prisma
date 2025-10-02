@@ -27,6 +27,24 @@ model User {
   @@map("users")
 }
 
+// Project Model
+model Project {
+  id             Int      @id @default(autoincrement())
+  title          String
+  image          String
+  projectType    String
+  projectSummary String
+  gitHubLink     String
+  liveSiteLink   String
+  technologies   String[]
+  details        String[]
+  images         String[]
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("projects")
+}
+
 // 
 enum Role {
   ADMIN

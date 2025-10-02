@@ -72,4 +72,7 @@ function handleProcessEvents() {
 }
 
 // Start the application
-startServer();
+(async () => {
+  await startServer();
+  // await seedSuperAdmin();
+})();
