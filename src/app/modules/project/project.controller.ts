@@ -19,6 +19,23 @@ const addProject = catchAsync(
   }
 );
 
+// get all Projects
+const getAllProjects = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const projects = await projectServices.getAllProjects();
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Projects retrieved Successfully",
+      data: projects,
+    });
+  }
+);
+
+
+
 export const ProjectController = {
   addProject,
+  getAllProjects,
 };
