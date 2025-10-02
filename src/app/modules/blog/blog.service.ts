@@ -78,8 +78,72 @@ const getBlogBySlug = async (slug: string) => {
   return blog;
 };
 
+// Update blog post by Id
+const updateBlog = async (id: number, blogData: Prisma.BlogPostUpdateInput) => {
+  // Check if blog exists
+  const existingBlog = await prisma.blogPost.findUnique({
+    where: { id },
+  });
+
+  if (!existingBlog) {
+    throw new Error("Blog post not found");
+  }
+
+  // regenerate slug for title update
+  if (blogData.title && typeof blogData.title === "string") {
+    blogData.slug = generateSlug(blogData.title);
+
+    // Check if new slug exists already
+    const slugExists = await prisma.blogPost.findFirst({
+      where: {
+        slug: blogData.slug,
+        NOT: { id },
+      },
+    });
+
+    if (slugExists) {
+      blogData.slug = `${blogData.slug}-${Date.now()}`;
+    }
+  }
+
+  const result = await prisma.blogPost.update({
+    where: { id },
+    data: blogData,
+    include: {
+      author: {
+        select: {
+          username: true,
+          email: true,
+        },
+      },
+    },
+  });
+
+  return result;
+};
+
+// Delete blog post by Id
+const deleteBlog = async (id: number) => {
+  // Check if blog exists
+  const existingBlog = await prisma.blogPost.findUnique({
+    where: { id },
+  });
+
+  if (!existingBlog) {
+    throw new Error("Blog post not found");
+  }
+
+  const result = await prisma.blogPost.delete({
+    where: { id },
+  });
+
+  return result;
+};
+
 export const blogServices = {
   createBlog,
   getAllBlogs,
   getBlogBySlug,
+  updateBlog,
+  deleteBlog,
 };
