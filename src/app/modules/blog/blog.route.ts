@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { verifyAdmin } from "../../middleware/checkAuth";
 import { validateRequest } from "../../middleware/validateRequest";
 import { BlogController } from "./blog.controller";
 import { BlogValidations } from "./blog.validation";
@@ -15,6 +16,7 @@ router.get("/:slug", BlogController.getBlogBySlug);
 router.post(
   "/",
   validateRequest(BlogValidations.createBlogValidationSchema),
+  verifyAdmin,
   BlogController.createBlog
 );
 
@@ -22,10 +24,11 @@ router.post(
 router.patch(
   "/:id",
   validateRequest(BlogValidations.updateBlogValidationSchema),
+  verifyAdmin,
   BlogController.updateBlog
 );
 
 // Delete blog post by id
-router.delete("/:id", BlogController.deleteBlog);
+router.delete("/:id", verifyAdmin, BlogController.deleteBlog);
 
 export const BlogRoutes = router;
