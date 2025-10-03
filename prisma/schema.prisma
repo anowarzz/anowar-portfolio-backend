@@ -34,6 +34,7 @@ model BlogPost {
   excerpt        String?
   featuredImage  String?
   isFeatured     Boolean  @default(false)
+  isDeleted      Boolean  @default(false)
   views          Int      @default(0)
   tags           String[]
   category       String?

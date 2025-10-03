@@ -1,5 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import httpStatus from "http-status-codes";
+import cloudinary from "../../config/cloudinary.config";
+import AppError from "../../errorHelpers/appError";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import { blogServices } from "./blog.service";
@@ -8,7 +10,35 @@ import { blogServices } from "./blog.service";
 const createBlog = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const blogData = req.body;
-    const blog = await blogServices.createBlog(blogData);
+
+    const featuredImage = req.file;
+
+    console.log("Uploaded file:", featuredImage);
+    console.log("Blog data:", blogData);
+
+    let featuredImageUrl = "";
+    if (featuredImage) {
+      featuredImageUrl = await new Promise((resolve, reject) => {
+        cloudinary.uploader
+          .upload_stream(
+            {
+              resource_type: "image",
+              folder: "anowarzz-portfolio/blogs/feature-images",
+            },
+            (error, result) => {
+              if (error)
+                reject(new AppError(500, "feature image upload failed"));
+              else resolve(result?.secure_url || "");
+            }
+          )
+          .end(featuredImage.buffer);
+      });
+    }
+
+    const blog = await blogServices.createBlog({
+      ...(featuredImageUrl && { featuredImage: featuredImageUrl }),
+      ...blogData,
+    });
 
     sendResponse(res, {
       statusCode: httpStatus.CREATED,

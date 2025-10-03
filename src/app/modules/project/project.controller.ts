@@ -118,11 +118,74 @@ const getSingleProject = catchAsync(
 const updateProject = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
-    const projectData = req.body;
-    const project = await projectServices.updateProject(
-      Number(id),
-      projectData
-    );
+    const projectData = req.body.data || req.body;
+
+    const files = req.files as {
+      coverImage?: Express.Multer.File[];
+      galleryImages?: Express.Multer.File[];
+    };
+
+    const coverImage = files.coverImage?.[0];
+    const galleryImages = files.galleryImages || [];
+
+    // Prepare update data
+    const updateData: any = { ...projectData };
+
+    // Handle cover image upload if new one is provided
+    if (coverImage) {
+      const coverImageUrl = await new Promise((resolve, reject) => {
+        cloudinary.uploader
+          .upload_stream(
+            {
+              resource_type: "image",
+              folder: "anowarzz-portfolio/projects/cover-images",
+            },
+            (error, result) => {
+              if (error) reject(new AppError(500, "Cover image upload failed"));
+              else resolve(result?.secure_url || "");
+            }
+          )
+          .end(coverImage.buffer);
+      });
+      updateData.image = coverImageUrl;
+    }
+
+    // Handle gallery images upload if new ones are provided
+    if (galleryImages.length > 0) {
+      const galleryImageUrls = [];
+      for (const file of galleryImages) {
+        const url = await new Promise((resolve, reject) => {
+          cloudinary.uploader
+            .upload_stream(
+              {
+                resource_type: "image",
+                folder: "anowarzz-portfolio/projects/gallery-images",
+              },
+              (error, result) => {
+                if (error)
+                  reject(new AppError(500, "Gallery image upload failed"));
+                else resolve(result?.secure_url);
+              }
+            )
+            .end(file.buffer);
+        });
+        galleryImageUrls.push(url);
+      }
+      updateData.images = galleryImageUrls;
+    }
+
+    // Parse JSON string arrays to actual arrays if they exist
+    if (
+      updateData.technologies &&
+      typeof updateData.technologies === "string"
+    ) {
+      updateData.technologies = JSON.parse(updateData.technologies);
+    }
+    if (updateData.details && typeof updateData.details === "string") {
+      updateData.details = JSON.parse(updateData.details);
+    }
+
+    const project = await projectServices.updateProject(Number(id), updateData);
 
     sendResponse(res, {
       statusCode: httpStatus.OK,

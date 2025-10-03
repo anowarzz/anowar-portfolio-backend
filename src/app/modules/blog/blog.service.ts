@@ -34,6 +34,9 @@ const createBlog = async (blogData: Prisma.BlogPostCreateInput) => {
 // Get all blog posts
 const getAllBlogs = async () => {
   const blogs = await prisma.blogPost.findMany({
+    where: {
+      isDeleted: false,
+    },
     orderBy: {
       createdAt: "desc",
     },
@@ -53,8 +56,11 @@ const getAllBlogs = async () => {
 
 // Get single blog post by slug
 const getBlogBySlug = async (slug: string) => {
-  const blog = await prisma.blogPost.findUnique({
-    where: { slug: slug },
+  const blog = await prisma.blogPost.findFirst({
+    where: {
+      slug: slug,
+      isDeleted: false,
+    },
     include: {
       author: {
         select: {
@@ -122,19 +128,24 @@ const updateBlog = async (id: number, blogData: Prisma.BlogPostUpdateInput) => {
   return result;
 };
 
-// Delete blog post by Id
+// Soft delete blog post by Id
 const deleteBlog = async (id: number) => {
-  // Check if blog exists
-  const existingBlog = await prisma.blogPost.findUnique({
-    where: { id },
+  // Check if blog exists and is not already deleted
+  const existingBlog = await prisma.blogPost.findFirst({
+    where: {
+      id,
+      isDeleted: false,
+    },
   });
 
   if (!existingBlog) {
-    throw new Error("Blog post not found");
+    throw new Error("Blog post not found or already deleted");
   }
 
-  const result = await prisma.blogPost.delete({
+  // Soft delete by setting isDeleted to true
+  const result = await prisma.blogPost.update({
     where: { id },
+    data: { isDeleted: true },
   });
 
   return result;
