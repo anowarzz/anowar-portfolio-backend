@@ -5,7 +5,7 @@ import { ProjectController } from "./project.controller";
 
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 1 * 1024 * 1024 }, // Limit file size to 1MB
+  limits: { fileSize: 3 * 1024 * 1024 }, // Limit file size to 3MB
 });
 
 const router = Router();

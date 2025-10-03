@@ -10,7 +10,6 @@ const createBlogValidationSchema = z.object({
     .min(1, "Content cannot be empty"),
   excerpt: z.string().optional(),
   featuredImage: z
-    .string()
     .url("Featured image must be a valid URL")
     .optional(),
   isFeatured: z.boolean().optional().default(false),
@@ -25,7 +24,6 @@ const updateBlogValidationSchema = z.object({
   content: z.string().min(1, "Content cannot be empty").optional(),
   excerpt: z.string().optional(),
   featuredImage: z
-    .string()
     .url("Featured image must be a valid URL")
     .optional(),
   isFeatured: z.boolean().optional(),

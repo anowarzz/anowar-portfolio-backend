@@ -9,7 +9,7 @@ import { projectServices } from "./project.service";
 // add a Project
 const addProject = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const projectData = JSON.parse(req.body.data || req.body);
+    const projectData = req.body.data || req.body;
 
     const files = req.files as {
       coverImage?: Express.Multer.File[];
@@ -57,10 +57,23 @@ const addProject = catchAsync(
       galleryImageUrls.push(url);
     }
 
+    // Parse JSON string arrays to actual arrays
+    const parsedProjectData = {
+      ...projectData,
+      technologies:
+        typeof projectData.technologies === "string"
+          ? JSON.parse(projectData.technologies)
+          : projectData.technologies,
+      details:
+        typeof projectData.details === "string"
+          ? JSON.parse(projectData.details)
+          : projectData.details,
+    };
+
     const project = await projectServices.addProject({
       image: coverImageUrl,
       images: galleryImageUrls,
-      ...projectData,
+      ...parsedProjectData,
     });
 
     sendResponse(res, {
