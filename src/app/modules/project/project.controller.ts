@@ -1,5 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import httpStatus from "http-status-codes";
+import cloudinary from "../../config/cloudinary.config";
+import AppError from "../../errorHelpers/appError";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import { projectServices } from "./project.service";
@@ -7,8 +9,59 @@ import { projectServices } from "./project.service";
 // add a Project
 const addProject = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const projectData = req.body;
-    const project = await projectServices.addProject(projectData);
+    const projectData = JSON.parse(req.body.data || req.body);
+
+    const files = req.files as {
+      coverImage?: Express.Multer.File[];
+      galleryImages?: Express.Multer.File[];
+    };
+
+    const coverImage = files.coverImage?.[0];
+    const galleryImages = files.galleryImages || [];
+
+    let coverImageUrl = "";
+    if (coverImage) {
+      coverImageUrl = await new Promise((resolve, reject) => {
+        cloudinary.uploader
+          .upload_stream(
+            {
+              resource_type: "image",
+              folder: "anowarzz-portfolio/projects/cover-images",
+            },
+            (error, result) => {
+              if (error) reject(new AppError(500, "Cover image upload failed"));
+              else resolve(result?.secure_url || "");
+            }
+          )
+          .end(coverImage.buffer);
+      });
+    }
+
+    const galleryImageUrls = [];
+    for (const file of galleryImages) {
+      const url = await new Promise((resolve, reject) => {
+        cloudinary.uploader
+          .upload_stream(
+            {
+              resource_type: "image",
+              folder: "anowarzz-portfolio/projects/gallery-images",
+            },
+            (error, result) => {
+              if (error)
+                reject(new AppError(500, "Gallery image upload failed"));
+              else resolve(result?.secure_url);
+            }
+          )
+          .end(file.buffer);
+      });
+      galleryImageUrls.push(url);
+    }
+
+    const project = await projectServices.addProject({
+      image: coverImageUrl,
+      images: galleryImageUrls,
+      ...projectData,
+    });
 
     sendResponse(res, {
       statusCode: httpStatus.CREATED,
