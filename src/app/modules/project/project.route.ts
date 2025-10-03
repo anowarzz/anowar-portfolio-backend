@@ -23,7 +23,7 @@ router.get("/", ProjectController.getAllProjects);
 router.get("/:id", ProjectController.getSingleProject);
 router.patch(
   "/:id",
-  verifyAdmin,
+  // verifyAdmin,
   upload.fields([
     { name: "coverImage", maxCount: 1 },
     { name: "galleryImages", maxCount: 5 },

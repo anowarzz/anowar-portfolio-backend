@@ -120,6 +120,8 @@ const updateProject = catchAsync(
     const { id } = req.params;
     const projectData = req.body.data || req.body;
 
+    console.log("Received project data:", projectData);
+
     const files = req.files as {
       coverImage?: Express.Multer.File[];
       galleryImages?: Express.Multer.File[];
@@ -150,11 +152,25 @@ const updateProject = catchAsync(
       updateData.image = coverImageUrl;
     }
 
-    // Handle gallery images upload if new ones are provided
+    // Handle gallery images - combine existing kept images with new uploads
+    let finalGalleryImages: string[] = [];
+
+    // Parse kept gallery images from frontend (existing images user wants to keep)
+    let keptImages: string[] = [];
+    if (projectData.keepGalleryImages) {
+      try {
+        keptImages = JSON.parse(projectData.keepGalleryImages);
+      } catch (error) {
+        console.log("Error parsing keepGalleryImages:", error);
+        keptImages = [];
+      }
+    }
+
+    // Upload new gallery images if provided
+    const newGalleryImageUrls: string[] = [];
     if (galleryImages.length > 0) {
-      const galleryImageUrls = [];
       for (const file of galleryImages) {
-        const url = await new Promise((resolve, reject) => {
+        const url = await new Promise<string>((resolve, reject) => {
           cloudinary.uploader
             .upload_stream(
               {
@@ -164,14 +180,25 @@ const updateProject = catchAsync(
               (error, result) => {
                 if (error)
                   reject(new AppError(500, "Gallery image upload failed"));
-                else resolve(result?.secure_url);
+                else resolve(result?.secure_url || "");
               }
             )
             .end(file.buffer);
         });
-        galleryImageUrls.push(url);
+        newGalleryImageUrls.push(url);
       }
-      updateData.images = galleryImageUrls;
+    }
+
+    // Combine kept images with new uploads
+    finalGalleryImages = [...keptImages, ...newGalleryImageUrls];
+
+    // Only update images field if there are images (kept or new)
+    if (
+      finalGalleryImages.length > 0 ||
+      keptImages.length > 0 ||
+      newGalleryImageUrls.length > 0
+    ) {
+      updateData.images = finalGalleryImages;
     }
 
     // Parse JSON string arrays to actual arrays if they exist
@@ -185,7 +212,13 @@ const updateProject = catchAsync(
       updateData.details = JSON.parse(updateData.details);
     }
 
-    const project = await projectServices.updateProject(Number(id), updateData);
+    // Remove non-database fields that are used for frontend logic only
+    const { keepGalleryImages, ...cleanUpdateData } = updateData;
+
+    const project = await projectServices.updateProject(
+      Number(id),
+      cleanUpdateData
+    );
 
     sendResponse(res, {
       statusCode: httpStatus.OK,
