@@ -1,4 +1,7 @@
 import { prisma } from "../../config/db";
+import { envVars } from "../../config/env";
+import AppError from "../../errorHelpers/appError";
+import { verifyToken } from "../../utils/jwt";
 
 // admin statistics
 const getAdminStats = async () => {
@@ -86,6 +89,21 @@ const getAdminStats = async () => {
   };
 };
 
+// verify token
+const verifyAdminToken = async (token: string) => {
+  if (!token) {
+    throw new AppError(401, "No Token Provided");
+  }
+  const decoded = verifyToken(token, envVars.JWT_ACCESS_SECRET);
+
+  if (!decoded) {
+    throw new AppError(401, "Invalid Token");
+  }
+
+  return decoded;
+};
+
 export const adminServices = {
   getAdminStats,
+  verifyAdminToken,
 };
