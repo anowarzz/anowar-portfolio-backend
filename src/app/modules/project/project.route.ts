@@ -1,5 +1,6 @@
 import { Router } from "express";
 import multer from "multer";
+import { verifyAdmin } from "../../middleware/checkAuth";
 import { ProjectController } from "./project.controller";
 
 export const upload = multer({
@@ -11,7 +12,7 @@ const router = Router();
 
 router.post(
   "/",
-  //   verifyAdmin,
+  verifyAdmin,
   upload.fields([
     { name: "coverImage", maxCount: 1 },
     { name: "galleryImages", maxCount: 5 },
@@ -22,17 +23,13 @@ router.get("/", ProjectController.getAllProjects);
 router.get("/:id", ProjectController.getSingleProject);
 router.patch(
   "/:id",
-  // verifyAdmin,
+  verifyAdmin,
   upload.fields([
     { name: "coverImage", maxCount: 1 },
     { name: "galleryImages", maxCount: 5 },
   ]),
   ProjectController.updateProject
 );
-router.delete(
-  "/:id",
-  //  verifyAdmin,
-  ProjectController.deleteProject
-);
+router.delete("/:id", verifyAdmin, ProjectController.deleteProject);
 
 export const ProjectRoutes = router;
