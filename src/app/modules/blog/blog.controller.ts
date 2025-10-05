@@ -150,8 +150,19 @@ const updateBlog = catchAsync(
       });
     }
 
+    //isFeatured and tags  parse
+    const isFeatured =
+      blogData.isFeatured === "true" || blogData.isFeatured === true;
+    const tags = blogData.tags
+      ? typeof blogData.tags === "string"
+        ? JSON.parse(blogData.tags)
+        : blogData.tags
+      : [];
+
     const updateData = {
       ...blogData,
+      isFeatured,
+      tags,
       ...(featuredImageUrl && { featuredImage: featuredImageUrl }),
     };
 
