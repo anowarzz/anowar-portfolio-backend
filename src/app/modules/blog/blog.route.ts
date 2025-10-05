@@ -5,7 +5,7 @@ import { BlogController } from "./blog.controller";
 const router = Router();
 
 // get all blog posts
-router.get("/", BlogController.getAllBlogs);
+router.get("/all", BlogController.getAllBlogs);
 
 // get blog stats
 router.get("/stats", BlogController.getBlogStats);

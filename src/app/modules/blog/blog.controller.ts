@@ -16,7 +16,7 @@ const createBlog = catchAsync(
     console.log("Uploaded file:", featuredImage);
     console.log("Blog data:", blogData);
 
-    // Parse form data 
+    // Parse form data
     const parsedBlogData = {
       ...blogData,
 
@@ -85,7 +85,7 @@ const getAllBlogs = catchAsync(
       statusCode: httpStatus.OK,
       success: true,
       message: "All Blogs retrieved successfully",
-      data: blogs.data, 
+      data: blogs.data,
       meta: {
         page: blogs.pagination.page,
         limit: blogs.pagination.limit,
@@ -99,6 +99,10 @@ const getAllBlogs = catchAsync(
 // get single blog post by slug
 const getBlogBySlug = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
+    // Debug logging
+    console.log("🔍 getBlogBySlug - Params:", req.params);
+    console.log("🔍 getBlogBySlug - Query:", req.query);
+
     const { slug } = req.params;
     const blog = await blogServices.getBlogBySlug(slug);
 
