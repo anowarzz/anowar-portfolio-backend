@@ -2,8 +2,6 @@ import { Router } from "express";
 import { verifyAdmin } from "../../middleware/checkAuth";
 import { upload } from "../project/project.route";
 import { BlogController } from "./blog.controller";
-import { validateRequest } from "../../middleware/validateRequest";
-import { BlogValidations } from "./blog.validation";
 
 const router = Router();
 
@@ -23,7 +21,6 @@ router.get("/:slug", BlogController.getBlogBySlug);
 router.post(
   "/",
   upload.single("featuredImage"),
-  validateRequest(BlogValidations.createBlogValidationSchema),
   verifyAdmin,
   BlogController.createBlog
 );

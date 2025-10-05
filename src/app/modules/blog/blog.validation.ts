@@ -1,6 +1,5 @@
 import { z } from "zod";
 
-
 // blog creation validation
 const createBlogValidationSchema = z.object({
   title: z
@@ -11,15 +10,30 @@ const createBlogValidationSchema = z.object({
     .string({ message: "Content is required" })
     .min(1, "Content cannot be empty"),
   excerpt: z.string().optional(),
-  featuredImage: z
-    .url("Featured image must be a valid URL")
-    .optional(),
-  isFeatured: z.boolean().optional().default(false),
-  tags: z.array(z.string()).optional().default([]),
+  featuredImage: z.string().optional(), // Allow string for file handling
+  isFeatured: z
+    .union([z.boolean(), z.string()])
+    .transform((val) => {
+      if (typeof val === "boolean") return val;
+      return val === "true";
+    })
+    .optional()
+    .default(false),
+  tags: z
+    .union([z.array(z.string()), z.string()])
+    .transform((val) => {
+      if (Array.isArray(val)) return val;
+      try {
+        return JSON.parse(val);
+      } catch {
+        return [];
+      }
+    })
+    .optional()
+    .default([]),
   category: z.string().optional(),
   authorUsername: z.string({ message: "Author username is required" }),
 });
-
 
 // blog update validation
 const updateBlogValidationSchema = z.object({
@@ -27,11 +41,29 @@ const updateBlogValidationSchema = z.object({
   slug: z.string().min(1, "Slug cannot be empty").optional(),
   content: z.string().min(1, "Content cannot be empty").optional(),
   excerpt: z.string().optional(),
-  featuredImage: z
-    .url("Featured image must be a valid URL")
+  featuredImage: z.string().optional(),
+  isFeatured: z
+    .union([z.boolean(), z.string()])
+    .transform((val) => {
+      if (typeof val === "boolean") return val;
+      if (typeof val === "string") return val === "true";
+      return val;
+    })
     .optional(),
-  isFeatured: z.boolean().optional(),
-  tags: z.array(z.string()).optional(),
+  tags: z
+    .union([z.array(z.string()), z.string()])
+    .transform((val) => {
+      if (Array.isArray(val)) return val;
+      if (typeof val === "string") {
+        try {
+          return JSON.parse(val);
+        } catch {
+          return val;
+        }
+      }
+      return val;
+    })
+    .optional(),
   category: z.string().optional(),
   authorUsername: z.string().optional(),
 });

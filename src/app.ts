@@ -1,4 +1,5 @@
 import compression from "compression";
+import cookieParser from "cookie-parser";
 import cors from "cors";
 import express, { Application, Request, Response } from "express";
 import { envVars } from "./app/config/env";
@@ -10,6 +11,7 @@ const app: Application = express();
 
 // Parser
 app.use(express.json());
+app.use(cookieParser());
 app.use(
   cors({
     origin: [envVars.CLIENT_URL as string, "http://localhost:3000"],

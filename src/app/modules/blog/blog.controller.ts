@@ -9,25 +9,15 @@ import { blogServices } from "./blog.service";
 // Create a blog post
 const createBlog = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const blogData = req.body.data || req.body;
+    const blogData = req.body;
 
     const featuredImage = req.file;
 
+    const isFeatured = blogData.isFeatured === "true";
+    const tags = blogData.tags ? JSON.parse(blogData.tags) : [];
+
     console.log("Uploaded file:", featuredImage);
     console.log("Blog data:", blogData);
-
-    // Parse form data
-    const parsedBlogData = {
-      ...blogData,
-
-      isFeatured:
-        blogData.isFeatured === "true" || blogData.isFeatured === true,
-
-      tags:
-        typeof blogData.tags === "string"
-          ? JSON.parse(blogData.tags)
-          : blogData.tags,
-    };
 
     let featuredImageUrl = "";
     if (featuredImage) {
@@ -48,9 +38,13 @@ const createBlog = catchAsync(
       });
     }
 
+    const { isFeatured: _, tags: __, ...restBlogData } = blogData;
+
     const blog = await blogServices.createBlog({
       ...(featuredImageUrl && { featuredImage: featuredImageUrl }),
-      ...parsedBlogData,
+      isFeatured,
+      tags,
+      ...restBlogData,
     });
 
     sendResponse(res, {
@@ -99,10 +93,6 @@ const getAllBlogs = catchAsync(
 // get single blog post by slug
 const getBlogBySlug = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    // Debug logging
-    console.log("🔍 getBlogBySlug - Params:", req.params);
-    console.log("🔍 getBlogBySlug - Query:", req.query);
-
     const { slug } = req.params;
     const blog = await blogServices.getBlogBySlug(slug);
 
@@ -134,22 +124,11 @@ const getBlogById = catchAsync(
 const updateBlog = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
-    const blogData = req.body?.data || req.body;
+    const blogData = req.body;
     const featuredImage = req.file;
 
     console.log("Update - Uploaded file:", featuredImage);
     console.log("Update - Blog data:", blogData);
-
-    // Parse form data
-    const parsedBlogData = {
-      ...blogData,
-      isFeatured:
-        blogData.isFeatured === "true" || blogData.isFeatured === true,
-      tags:
-        typeof blogData.tags === "string"
-          ? JSON.parse(blogData.tags)
-          : blogData.tags,
-    };
 
     // Handle featured image upload if provided
     let featuredImageUrl = "";
@@ -172,7 +151,7 @@ const updateBlog = catchAsync(
     }
 
     const updateData = {
-      ...parsedBlogData,
+      ...blogData,
       ...(featuredImageUrl && { featuredImage: featuredImageUrl }),
     };
 
