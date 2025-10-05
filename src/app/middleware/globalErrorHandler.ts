@@ -33,21 +33,21 @@ export const globalErrorHandler = (
     message = simplifiedError.message;
     errorSources = simplifiedError.errorSources as TErrorSources[];
   }
-  // Prisma Client Validation Error (missing required fields, invalid arguments)
+  // missing required fields, invalid arguments
   else if (err.name === "PrismaClientValidationError") {
     const simplifiedError = handlePrismaClientValidationError(err);
     statusCode = simplifiedError.statusCode;
     message = simplifiedError.message;
     errorSources = simplifiedError.errorSources as TErrorSources[];
   }
-  // Prisma duplicate error
+  //  duplicate error
   else if (err.code === "P2002") {
     const simplifiedError = handleDuplicateError(err);
     statusCode = simplifiedError.statusCode;
     message = simplifiedError.message;
     errorSources = simplifiedError.errorSources as TErrorSources[];
   }
-  // Other Prisma validation errors
+  //  validation errors
   else if (err.code && err.code.startsWith("P2")) {
     const simplifiedError = handlePrismaValidationError(err);
     statusCode = simplifiedError.statusCode;

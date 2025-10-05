@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+
+// blog creation validation
 const createBlogValidationSchema = z.object({
   title: z
     .string({ message: "Title is required" })
@@ -18,6 +20,8 @@ const createBlogValidationSchema = z.object({
   authorUsername: z.string({ message: "Author username is required" }),
 });
 
+
+// blog update validation
 const updateBlogValidationSchema = z.object({
   title: z.string().min(1, "Title cannot be empty").optional(),
   slug: z.string().min(1, "Slug cannot be empty").optional(),

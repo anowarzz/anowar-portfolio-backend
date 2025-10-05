@@ -43,6 +43,7 @@ model BlogPost {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
+  @@index([authorUsername]) 
   @@map("blog_posts")
 }
 

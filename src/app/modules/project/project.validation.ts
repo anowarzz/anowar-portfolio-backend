@@ -16,9 +16,7 @@ const createProjectValidationSchema = z.object({
     .min(10, "Project summary must be at least 10 characters")
     .max(500, "Project summary must be less than 500 characters"),
   gitHubLink: z.url("GitHub link must be a valid URL"),
-  liveSiteLink: z
-    .string({ message: "Live site link is required" })
-    .url("Live site link must be a valid URL"),
+  liveSiteLink: z.url("Live site link must be a valid URL"),
   technologies: z
     .array(z.string().min(1, "Technology name cannot be empty"))
     .min(1, "At least one technology is required")
@@ -54,8 +52,8 @@ const updateProjectValidationSchema = z.object({
     .min(10, "Project summary must be at least 10 characters")
     .max(500, "Project summary must be less than 500 characters")
     .optional(),
-  gitHubLink: z.string().url("GitHub link must be a valid URL").optional(),
-  liveSiteLink: z.string().url("Live site link must be a valid URL").optional(),
+  gitHubLink: z.url("GitHub link must be a valid URL").optional(),
+  liveSiteLink: z.url("Live site link must be a valid URL").optional(),
   technologies: z
     .array(z.string().min(1, "Technology name cannot be empty"))
     .min(1, "At least one technology is required")

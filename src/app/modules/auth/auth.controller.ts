@@ -9,7 +9,7 @@ import { AuthServices } from "./auth.service";
 // admin login
 const adminLogin = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const loginInfo = await AuthServices.credentialsLogin(req.body);
+    const loginInfo = await AuthServices.adminLogin(req.body);
 
     setAuthCookie(res, loginInfo);
 

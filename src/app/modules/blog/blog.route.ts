@@ -1,36 +1,44 @@
 import { Router } from "express";
-import { verifyAdmin } from "../../middleware/checkAuth";
-import { validateRequest } from "../../middleware/validateRequest";
 import { upload } from "../project/project.route";
 import { BlogController } from "./blog.controller";
-import { BlogValidations } from "./blog.validation";
 
 const router = Router();
 
-// Get all blog posts
+// get all blog posts
 router.get("/", BlogController.getAllBlogs);
 
-// Get single blog post by slug
+// get blog stats
+router.get("/stats", BlogController.getBlogStats);
+
+// get single blog post by id
+router.get("/id/:id", BlogController.getBlogById);
+
+// get single blog post by slug
 router.get("/:slug", BlogController.getBlogBySlug);
 
-// Create blog post
+// create blog post
 router.post(
   "/",
   upload.single("featuredImage"),
-  validateRequest(BlogValidations.createBlogValidationSchema),
-  verifyAdmin,
+  // validateRequest(BlogValidations.createBlogValidationSchema),
+  // verifyAdmin,
   BlogController.createBlog
 );
 
-// Update blog post by id
+// update blog post by id
 router.patch(
-  "/:id",
-  validateRequest(BlogValidations.updateBlogValidationSchema),
-  verifyAdmin,
+  "/id/:id",
+  upload.single("featuredImage"),
+
+  // verifyAdmin,
   BlogController.updateBlog
 );
 
-// Delete blog post by id
-router.delete("/:id", verifyAdmin, BlogController.deleteBlog);
+// delete blog post by id
+router.delete(
+  "/id/:id",
+  // verifyAdmin,
+  BlogController.deleteBlog
+);
 
 export const BlogRoutes = router;

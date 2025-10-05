@@ -9,8 +9,8 @@ interface LoginPayload {
   password: string;
 }
 
-// Admin login service
-const credentialsLogin = async (payload: LoginPayload) => {
+// admin login 
+const adminLogin = async (payload: LoginPayload) => {
   const { email, password } = payload;
 
   // Check if user exists
@@ -44,5 +44,5 @@ const credentialsLogin = async (payload: LoginPayload) => {
 };
 
 export const AuthServices = {
-  credentialsLogin,
+  adminLogin,
 };

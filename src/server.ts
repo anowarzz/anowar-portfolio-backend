@@ -32,7 +32,7 @@ async function startServer() {
   }
 }
 
-// Gracefully shutdown the server and close database connections.
+// shutdown the server and close database connections.
 
 async function gracefulShutdown(signal: string) {
   console.warn(`Received ${signal}, shutting down gracefully...`);
@@ -54,7 +54,7 @@ async function gracefulShutdown(signal: string) {
   }
 }
 
-// Handle system signals and unexpected errors.
+// handle system signals and unexpected errors.
 
 function handleProcessEvents() {
   process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
@@ -74,5 +74,4 @@ function handleProcessEvents() {
 // Start the application
 (async () => {
   await startServer();
-  // await seedSuperAdmin();
 })();

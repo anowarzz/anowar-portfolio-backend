@@ -11,10 +11,9 @@ export const handlePrismaValidationError = (
   let message = "Validation Error";
   let statusCode = 400;
 
-  // handle prisma validation errors
+  //  prisma validation errors
   switch (err.code) {
     case "P2001":
-      // Record not found
       message = "Record not found";
       statusCode = 404;
       errorSources.push({

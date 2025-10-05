@@ -1,9 +1,8 @@
 import { z } from "zod";
 
+// user create validation
 const createUserValidationSchema = z.object({
-  email: z
-    .string({ message: "Email is required" })
-    .email("Invalid email format"),
+  email: z.email("Invalid email format"),
   username: z
     .string({ message: "Username is required" })
     .min(3, "Username must be at least 3 characters"),

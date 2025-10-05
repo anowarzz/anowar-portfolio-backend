@@ -1,11 +1,10 @@
 import { Router } from "express";
 import multer from "multer";
-import { verifyAdmin } from "../../middleware/checkAuth";
 import { ProjectController } from "./project.controller";
 
 export const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 3 * 1024 * 1024 }, // Limit file size to 3MB
+  limits: { fileSize: 3 * 1024 * 1024 },
 });
 
 const router = Router();
