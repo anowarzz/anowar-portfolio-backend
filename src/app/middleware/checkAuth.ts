@@ -7,7 +7,8 @@ import { catchAsync } from "../utils/catchAsync";
 
 export const verifyAdmin = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const accessToken = req.cookies?.accessToken;
+    const accessToken =
+      req.cookies?.accessToken || req.headers?.authorization?.split(" ")[1];
 
     if (!accessToken) {
       throw new AppError(401, "Access token is required. Please login.");

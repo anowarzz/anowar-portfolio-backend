@@ -30,7 +30,7 @@ const verifyAdminToken = catchAsync(
     }
     const isValid = await adminServices.verifyAdminToken(token);
 
-    console.log(isValid);
+    console.log(isValid, "verified");
 
     sendResponse(res, {
       statusCode: 200,
